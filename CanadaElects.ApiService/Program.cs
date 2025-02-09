@@ -19,27 +19,51 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-string[] summaries = ["Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"];
 
-app.MapGet("/weatherforecast", () =>
+// POST endpoint that accepts VotePercentageResult and returns an array of PartySeatForecast.
+app.MapPost("/election-forecast", (VotePercentageResult result) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    const int totalSeats = 338; // Total seats in the legislature (adjust as needed)
+    var forecasts = new List<PartySeatForecast>();
+
+    foreach (var party in result.Parties)
+    {
+        int? seats = null;
+        if (party.VotePercentage.HasValue)
+        {
+            // Calculate seats by taking the party's vote percentage of the total seats.
+            seats = (int)Math.Round(party.VotePercentage.Value / 100 * totalSeats);
+        }
+
+        forecasts.Add(new PartySeatForecast
+        {
+            Name = party.Name,
+            Seats = seats
+        });
+    }
+
+    // Return the forecast as JSON.
+    return Results.Json(forecasts);
 })
-.WithName("GetWeatherForecast");
+.WithName("GetElectionForecast");
 
 app.MapDefaultEndpoints();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+public record PartySeatForecast
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int? Seats { get; set; }
+    public required string Name { get; set; }
+}
+public class VotePercentageResult
+{
+    public List<PartyPercentage> Parties { get; set; } = new List<PartyPercentage>();
+}
+
+// Model representing each party's vote percentage.
+public record PartyPercentage
+{
+    public decimal? VotePercentage { get; set; }
+    public required string Name { get; set; }
 }

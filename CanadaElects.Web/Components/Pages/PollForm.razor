@@ -1,0 +1,87 @@
+﻿@page "/poll-form"
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+@inject ElectionForecastClient Client
+
+<EditForm FormName="votePercentageForm" Model="@votePercentageResult" OnValidSubmit="HandleValidSubmitAsync">
+    <h3>Canadian Federal Election - Popular Vote Percentage Entry</h3>
+
+    @foreach (var party in votePercentageResult.Parties)
+    {
+        <div class="form-group">
+            <label>@party.Name</label>
+            <InputNumber class="form-control" 
+            @bind-Value="party.VotePercentage" /> %
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-2">
+        Submit Results
+    </button>
+</EditForm>
+
+@if (forecast is not null)
+{
+    <h1>Seat Forecast</h1>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>Party</th>
+                <th>Seats</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var party in forecast)
+            {
+                <tr>
+                    <td>@party.Name</td>
+                    <td>@party.Seats</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+
+    // The model containing the list of parties.
+    private VotePercentageResult votePercentageResult = new VotePercentageResult();
+
+    private PartySeatForecast[]? forecast = null;
+
+    // Called when the form is submitted.
+    private async Task HandleValidSubmitAsync()
+    {
+        Console.WriteLine("Form submitted successfully!");
+        foreach (var party in votePercentageResult.Parties)
+        {
+            Console.WriteLine($"{party.Name}: {party.VotePercentage ?? 0}%");
+        }
+
+        forecast = await Client.GetWeatherAsync(votePercentageResult);
+
+    }
+
+    // Model encapsulating the collection of party vote percentages.
+    public class VotePercentageResult
+    {
+        public List<PartyPercentage> Parties { get; set; } = new List<PartyPercentage>
+        {
+            new PartyPercentage { Name = "Liberal Party", VotePercentage = 32 },
+            new PartyPercentage { Name = "Conservative Party", VotePercentage = 34 },
+            new PartyPercentage { Name = "New Democratic Party", VotePercentage = 18 },
+            new PartyPercentage { Name = "Bloc Québécois", VotePercentage = 7 },
+            new PartyPercentage { Name = "Green Party", VotePercentage = 8 },
+            new PartyPercentage { Name = "People's Party of Canada", VotePercentage = 1 }
+        };
+    }
+
+    // Model representing each party's vote percentage.
+    public record PartyPercentage
+    {
+        public decimal? VotePercentage { get; set; }
+        public required string Name { get; set; }
+    }
+}
+
