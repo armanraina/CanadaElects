@@ -63,17 +63,18 @@
 
     }
 
+
     // Model encapsulating the collection of party vote percentages.
     public class VotePercentageResult
     {
         public List<PartyPercentage> Parties { get; set; } = new List<PartyPercentage>
         {
-            new PartyPercentage { Name = "Liberal Party", VotePercentage = 32 },
-            new PartyPercentage { Name = "Conservative Party", VotePercentage = 34 },
-            new PartyPercentage { Name = "New Democratic Party", VotePercentage = 18 },
-            new PartyPercentage { Name = "Bloc Québécois", VotePercentage = 7 },
-            new PartyPercentage { Name = "Green Party", VotePercentage = 8 },
-            new PartyPercentage { Name = "People's Party of Canada", VotePercentage = 1 }
+            new PartyPercentage { Name = "Liberal/Libéral", VotePercentage = 32 },
+            new PartyPercentage { Name = "Conservative/Conservateur", VotePercentage = 34 },
+            new PartyPercentage { Name = "NDP-New Democratic Party/NPD-Nouveau Parti démocratique", VotePercentage = 18 },
+            new PartyPercentage { Name = "Bloc Québécois/Bloc Québécois", VotePercentage = 7 },
+            new PartyPercentage { Name = "Green Party/Parti Vert", VotePercentage = 8 },
+            new PartyPercentage { Name = "People's Party - PPC/Parti populaire - PPC", VotePercentage = 1 }
         };
     }
 
